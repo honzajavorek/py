@@ -1,0 +1,8 @@
+<h1>Events</h1>
+<p><a href="{{ url_for('index') }}">Index</a></p>
+<hr>
+<ul>
+{% for event in events %}
+    <li>{{ event.name }}</li>
+{% endfor %}
+</ul>

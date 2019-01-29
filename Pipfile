@@ -4,31 +4,21 @@ verify_ssl = true
 name = "pypi"
 
 [scripts]
-test = "python -m pytest ./tests --cov=pythoncz --pylama --tb=native"
-coveralls = "coveralls"
-serve = "python runserver.py serve"
-build = "python runserver.py freeze"
-deploy = "python runserver.py deploy --no-freeze --push"
+test = "pytest"
+serve = "python -m web serve"
+build = "python -m"  # pipenv run build data.events
+build_web = "python -m web freeze --path=build"
 
 [packages]
-elsa = "==0.1.5"
-flask = "==1.0.2"
-frozen-flask = "==0.15"
-requests = "==2.20.1"
-czech-sort = "==0.4"
-pyyaml = ">=4.2b1"
-python-slugify = "==1.2.5"
-ics = "==0.4"
-arrow = "==0.4.2"
-lxml = "==4.2.5"
-cssselect = "==1.0.3"
+pyyaml = "~=4.2b1"
+flask = "~=1.0.2"
 
 [dev-packages]
-pylama = "==7.6.6"
-pytest = "==3.7.2"
-pytest-cov = "==2.5.1"
-responses = "==0.9.0"
-coveralls = "==1.4.0"
+pylama = "~=7.6.6"
+pytest = "~=3.7.2"
+pytest-cov = "~=2.5.1"
+codecov = "~=2.0.15"
+elsa = "~=0.1.5"
 
 [requires]
 python_version = "3.7"
