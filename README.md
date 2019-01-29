@@ -2,6 +2,10 @@
 
 This is [@honzajavorek](https://github.com/honzajavorek/)'s experimental playground for the next generation of the [python.cz](https://github.com/pyvec/python.cz/) website.
 
+## Status
+
+[![CircleCI](https://circleci.com/gh/honzajavorek/py/tree/master.svg?style=svg)](https://circleci.com/gh/honzajavorek/py/tree/master)
+
 ## Fundamental changes
 
 - The [honzajavorek/py](https://github.com/honzajavorek/py) repository is not a direct fork of [pyvec/python.cz](https://github.com/pyvec/python.cz/). It has a common git commit history with it, but several large directories have been nuked:
