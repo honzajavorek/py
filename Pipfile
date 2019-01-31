@@ -4,10 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [scripts]
+# FIXME Makefile or something portable, but better than this
+# (e.g. ideally we want 'deploy' to be runnable even without Python in place)
 test = "pytest"
 serve = "python -m web serve"
 build = "python -m"  # pipenv run build data.events
 build_web = "python -m web freeze --path=build --no-cname"
+deploy = "now web/build --local-config=../../now.json"
 
 [packages]
 pyyaml = "~=4.2b1"

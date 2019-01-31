@@ -1,18 +1,84 @@
-version: 2
-jobs:
-  build:
+version: 2.1
+
+executors:
+  python:
     docker:
       - image: circleci/python:3.7
+    working_directory: ~/project
+  node:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/project
 
-    working_directory: ~/repo
+jobs:
+  install:
+    executor: python
     steps:
       - checkout
       - run:
           name: install dependencies
           command: pipenv install --dev
+      - persist_to_workspace:
+          root: "~"
+          paths:
+              - .local/share/virtualenvs
+              - project
+
+  test:
+    executor: python
+    steps:
+      - attach_workspace:
+          at: "~"
       - run:
           name: run tests
           command: pipenv run test
       - run:
+          # $CODECOV_TOKEN needs to be set
           name: send coverage report
           command: pipenv run codecov
+
+  build:
+    executor: python
+    steps:
+      - attach_workspace:
+          at: "~"
+      - run:
+          # FIXME fan out jobs to build each data file separately, then build web
+          # (and there could be a test to verify this config contains them all)
+          name: build
+          command: |
+            pipenv run build data.events
+            pipenv run build_web
+      - persist_to_workspace:
+          root: "~"
+          paths:
+              - project/web/build
+
+  deploy:
+    executor: node
+    steps:
+      - attach_workspace:
+          at: "~"
+      - run:
+          name: install 'now'
+          command: sudo npm install --global --unsafe-perm now
+      - run:
+          # FIXME https://github.com/zeit/now-cli/issues/1856
+          # $NOW_TOKEN needs to be set
+          name: deploy
+          command: now web/build --local-config=../../now.json --token=$NOW_TOKEN
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - install
+      - test:
+          requires:
+            - install
+      - build:
+          requires:
+            - test
+      - deploy:
+          requires:
+            - build

@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "name": "pythoncz",
+  "builds": [
+    { "src": "**/*.html", "use": "@now/html-minifier" }
+  ]
+}
