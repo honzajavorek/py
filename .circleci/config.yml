@@ -64,9 +64,14 @@ jobs:
           command: sudo npm install --global --unsafe-perm now
       - run:
           # FIXME https://github.com/zeit/now-cli/issues/1856
+          # FIXME simplify deployment
+          # FIXME limit deployment to master
           # $NOW_TOKEN needs to be set
           name: deploy
-          command: now web/build --local-config=../../now.json --token=$NOW_TOKEN
+          command: |
+            now web/build --local-config=../../now.json --token=$NOW_TOKEN
+            deployment_url=$(now ls pythoncz --token=$NOW_TOKEN | python -c 'import sys, re; print(re.search("pythoncz-[a-zA-Z0-9]+\\.now\\.sh", sys.stdin.read()).group(0))')
+            now alias "$deployment_url" pythoncz.now.sh --token=$NOW_TOKEN
 
 workflows:
   version: 2
