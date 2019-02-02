@@ -37,18 +37,23 @@ jobs:
           name: send coverage report
           command: pipenv run codecov
 
-  build:
+  build_events:
     executor: python
     steps:
       - attach_workspace:
           at: "~"
-      - run:
-          # FIXME fan out jobs to build each data file separately, then build web
-          # (and there could be a test to verify this config contains them all)
-          name: build
-          command: |
-            pipenv run build data.events
-            pipenv run build_web
+      - run: pipenv run build data.events
+      - persist_to_workspace:
+          root: "~"
+          paths:
+              - project/data/events
+
+  build_web:
+    executor: python
+    steps:
+      - attach_workspace:
+          at: "~"
+      - run: pipenv run build_web
       - persist_to_workspace:
           root: "~"
           paths:
@@ -81,9 +86,12 @@ workflows:
       - test:
           requires:
             - install
-      - build:
+      - build_events:
           requires:
             - test
+      - build_web:
+          requires:
+            - build_events
       - deploy:
           requires:
-            - build
+            - build_web
