@@ -80,7 +80,7 @@ jobs:
 
 workflows:
   version: 2
-  workflow:
+  default_workflow: &default_workflow
     jobs:
       - install
       - test:
@@ -95,3 +95,12 @@ workflows:
       - deploy:
           requires:
             - build_web
+  nightly_workflow:
+    <<: *default_workflow
+    triggers:
+      - schedule:
+          cron: "0 5 * * *"
+          filters:
+            branches:
+              only:
+                - master
