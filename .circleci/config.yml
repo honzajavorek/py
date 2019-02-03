@@ -5,13 +5,13 @@ executors:
     docker:
       - image: circleci/python:3.7
     working_directory: ~/project
-  node:
+  python-node:
     docker:
       - image: circleci/python:3.7-node
     working_directory: ~/project
 
 jobs:
-  install:
+  install_and_test:
     executor: python
     steps:
       - checkout
@@ -23,12 +23,6 @@ jobs:
           paths:
               - .local/share/virtualenvs
               - project
-
-  test:
-    executor: python
-    steps:
-      - attach_workspace:
-          at: "~"
       - run:
           name: run tests
           command: pipenv run test
@@ -48,46 +42,33 @@ jobs:
           paths:
               - project/data/events
 
-  build_web:
-    executor: python
+  build_web_and_deploy:
+    executor: python-node
     steps:
       - attach_workspace:
           at: "~"
-      - run: pipenv run build web
-      - persist_to_workspace:
-          root: "~"
-          paths:
-              - project/web/build
-
-  deploy:
-    executor: node
-    steps:
-      - attach_workspace:
-          at: "~"
+      - run:
+          name: build web
+          command: pipenv run build web
       - run:
           name: install 'now'
           command: sudo npm install --global --unsafe-perm now
       - run:
           # $NOW_TOKEN needs to be set
+          name: deploy
           command: pipenv run deploy "$CIRCLE_BRANCH"
 
 workflows:
   version: 2
   default_workflow: &default_workflow
     jobs:
-      - install
-      - test:
-          requires:
-            - install
+      - install_and_test
       - build_events:
           requires:
-            - test
-      - build_web:
+            - install_and_test
+      - build_web_and_deploy:
           requires:
             - build_events
-      - deploy:
-          requires:
-            - build_web
   nightly_workflow:
     <<: *default_workflow
     triggers:

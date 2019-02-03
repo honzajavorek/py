@@ -36,14 +36,12 @@ def test_ci_config_runs_all_builders(builder, config):
 def test_ci_config_fans_out_builders_in_workflow(config):
     builders_job_names = [f'build_{builder.name}' for builder in BUILDERS]
     builders_jobs = [
-        {f'build_{builder.name}': {'requires': ['test']}}
+        {f'build_{builder.name}': {'requires': ['install_and_test']}}
         for builder in BUILDERS
     ]
 
-    assert config['workflows']['default_workflow']['jobs'] == [
-        'install',
-        {'test': {'requires': ['install']}},
-    ] + builders_jobs + [
-        {'build_web': {'requires': builders_job_names}},
-        {'deploy': {'requires': ['build_web']}}
-    ]
+    assert config['workflows']['default_workflow']['jobs'] == (
+        ['install_and_test']
+        + builders_jobs
+        + [{'build_web_and_deploy': {'requires': builders_job_names}}]
+    )
