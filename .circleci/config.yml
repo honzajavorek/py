@@ -7,7 +7,7 @@ executors:
     working_directory: ~/project
   node:
     docker:
-      - image: circleci/node:10
+      - image: circleci/python:3.7-node
     working_directory: ~/project
 
 jobs:
@@ -42,7 +42,7 @@ jobs:
     steps:
       - attach_workspace:
           at: "~"
-      - run: pipenv run build data.events
+      - run: pipenv run build events
       - persist_to_workspace:
           root: "~"
           paths:
@@ -53,7 +53,7 @@ jobs:
     steps:
       - attach_workspace:
           at: "~"
-      - run: pipenv run build_web
+      - run: pipenv run build web
       - persist_to_workspace:
           root: "~"
           paths:
@@ -68,15 +68,8 @@ jobs:
           name: install 'now'
           command: sudo npm install --global --unsafe-perm now
       - run:
-          # FIXME https://github.com/zeit/now-cli/issues/1856
-          # FIXME simplify deployment
-          # FIXME limit deployment to master
           # $NOW_TOKEN needs to be set
-          name: deploy
-          command: |
-            now web/build --local-config=../../now.json --token=$NOW_TOKEN
-            deployment_url=$(now ls pythoncz --token=$NOW_TOKEN | python -c 'import sys, re; print(re.search("pythoncz-[a-zA-Z0-9]+\\.now\\.sh", sys.stdin.read()).group(0))')
-            now alias "$deployment_url" pythoncz.now.sh --token=$NOW_TOKEN
+          command: pipenv run deploy "$CIRCLE_BRANCH"
 
 workflows:
   version: 2

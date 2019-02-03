@@ -24,7 +24,7 @@ def test_ci_config_runs_all_builders(builder, config):
 
     assert job['executor'] == 'python'
     assert job['steps'][0] == {'attach_workspace': {'at': '~'}}
-    assert job['steps'][1] == {'run': f'pipenv run build data.{builder.name}'}
+    assert job['steps'][1] == {'run': f'pipenv run build {builder.name}'}
     assert job['steps'][2] == {
         'persist_to_workspace': {
             'root': '~',
