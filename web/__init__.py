@@ -24,8 +24,8 @@ def events():
     except FileNotFoundError:
         if app.debug:
             logging.warning((
-                "There is no data in '%s'. "
-                "Run 'pipenv run data.events' and retry the request to see content"
+                "There is no data in '%s'. Run 'pipenv run data.events' "
+                "and retry the request to see content"
             ), data_path)
             events = []
         else:
