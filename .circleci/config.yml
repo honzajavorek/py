@@ -27,7 +27,6 @@ jobs:
           name: run tests
           command: pipenv run test
       - run:
-          # $CODECOV_TOKEN needs to be set
           name: send coverage report
           command: pipenv run codecov
 
@@ -42,14 +41,22 @@ jobs:
           paths:
               - project/data/events
 
-  build_web_and_deploy:
+  build_web:
+    executor: python
+    steps:
+      - attach_workspace:
+          at: "~"
+      - run: pipenv run build web
+      - persist_to_workspace:
+          root: "~"
+          paths:
+              - project/web/build
+
+  deploy:
     executor: python-node
     steps:
       - attach_workspace:
           at: "~"
-      - run:
-          name: build web
-          command: pipenv run build web
       - run:
           name: install 'now'
           command: sudo npm install --global --unsafe-perm now
@@ -66,9 +73,16 @@ workflows:
       - build_events:
           requires:
             - install_and_test
-      - build_web_and_deploy:
+      - build_web:
           requires:
             - build_events
+      - deploy:
+          requires:
+            - build_web
+          filters:
+            branches:
+              only:
+                - master
   nightly_workflow:
     <<: *default_workflow
     triggers:

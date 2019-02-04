@@ -4,13 +4,13 @@ import pytest
 import yaml
 
 
-BUILDERS_PATH = Path(__file__).parent.parent / 'data'
+BUILDERS_PATH = Path(__file__).parent / 'data'
 BUILDERS = [b for b in BUILDERS_PATH.iterdir() if b.is_dir()]
 
 
 @pytest.fixture
 def config():
-    path = Path(__file__).parent / 'config.yml'
+    path = Path(__file__).parent / '.circleci' / 'config.yml'
     return yaml.safe_load(path.read_text())
 
 
@@ -34,14 +34,17 @@ def test_ci_config_runs_all_builders(builder, config):
 
 
 def test_ci_config_fans_out_builders_in_workflow(config):
+    default_workflow_jobs = config['workflows']['default_workflow']['jobs']
+
     builders_job_names = [f'build_{builder.name}' for builder in BUILDERS]
     builders_jobs = [
         {f'build_{builder.name}': {'requires': ['install_and_test']}}
         for builder in BUILDERS
     ]
+    builders_count = len(builders_job_names)
 
-    assert config['workflows']['default_workflow']['jobs'] == (
-        ['install_and_test']
-        + builders_jobs
-        + [{'build_web_and_deploy': {'requires': builders_job_names}}]
-    )
+    assert default_workflow_jobs[0] == 'install_and_test'
+    assert default_workflow_jobs[1:builders_count + 1] == builders_jobs
+    assert default_workflow_jobs[builders_count + 1] == {
+        'build_web': {'requires': builders_job_names}
+    }
