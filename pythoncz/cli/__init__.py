@@ -18,7 +18,7 @@ from pythoncz import app
 PROJECT_PATH = Path(__file__).parent.parent.parent
 
 PAGES_PATH = PROJECT_PATH / 'pythoncz' / 'pages'
-PAGES_NAMES = [
+PAGE_BUILDERS_NAMES = [
     item.name for item in PAGES_PATH.iterdir()
     if item.is_dir() and (PAGES_PATH / item / '__main__.py').is_file()
 ]
@@ -42,12 +42,12 @@ def serve(port):
 @click.argument('target', required=False)
 @click.pass_context
 def build(ctx, target=None):
-    if target in PAGES_NAMES:
+    if target in PAGE_BUILDERS_NAMES:
         build_page(target)
     elif target == 'web':
         build_web(app, WEB_BASE_URL, WEB_BUILD_PATH)
     else:
-        for page_name in PAGES_NAMES:
+        for page_name in PAGE_BUILDERS_NAMES:
             build_page(page_name)
         build_web(app, WEB_BASE_URL, WEB_BUILD_PATH)
 
@@ -113,6 +113,9 @@ def create_now_config(deployment_name, paths):
 
 
 def path_to_now_build(path):
+    # Beware! This function is taking care of 'now.sh builds', which are
+    # something completely different than 'page builders' mentioned elsewhere
+    # in the python.cz project.
     if path.match('*.html'):
         return {'src': str(path), 'use': '@now/html-minifier'}
     if path.match('*.png'):
