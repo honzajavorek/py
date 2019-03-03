@@ -73,6 +73,8 @@ There is no `tests` directory. Tests stay with the code to support their discove
 
 If one tests file is enough, call it `test_*.py` and put it alongside your code. If you need fixtures or more files, create an _ad-hoc_ `tests` directory and put the `test_*.py` files and fixtures inside.
 
+Thanks to the fact only the pure, library functions are (unit) tested, the test suite should be very fast.
+
 ## CLI
 
 - `pipenv run test` - runs the test suite
