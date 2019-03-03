@@ -39,7 +39,7 @@ jobs:
       - persist_to_workspace:
           root: "~"
           paths:
-              - project/data/events
+              - project/pythoncz/pages/events/*_data.json
 
   build_web:
     executor: python
@@ -50,7 +50,7 @@ jobs:
       - persist_to_workspace:
           root: "~"
           paths:
-              - project/web/build
+              - project/build
 
   deploy:
     executor: python-node

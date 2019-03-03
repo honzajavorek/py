@@ -5,18 +5,24 @@ name = "pypi"
 
 [scripts]
 test = "pytest"
-serve = "python -m web serve"
-build = "python -m cli build"
-deploy = "python -m cli deploy"
+serve = "python -m pythoncz serve"
+build = "python -m pythoncz build"
+deploy = "python -m pythoncz deploy"
 
 [packages]
+# Pinning packages with ~= unless their version starts with 0.,
+# then pinning each version strictly with ==
 pyyaml = "~=4.2b1"
 flask = "~=1.0.2"
-elsa = "~=0.1.5"
 click = "~=7.0"
-python-slugify = "*"
+python-slugify = "~=2.0.1"
+ics = "==0.4"
+arrow = "==0.4.2"  # can't use newer because of ics :(
+frozen-flask = "==0.15"
 
 [dev-packages]
+# Pinning packages with ~= unless their version starts with 0.,
+# then pinning each version strictly with ==
 pylama = "~=7.6.6"
 pytest = "~=3.7.2"
 pytest-cov = "~=2.5.1"

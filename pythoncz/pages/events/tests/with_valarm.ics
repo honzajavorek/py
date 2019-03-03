@@ -5,8 +5,7 @@ CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:Czech Python Events
 X-WR-TIMEZONE:Europe/Prague
-X-WR-CALDESC:Public calendar for attendees and organizers of Python events 
- in the Czech Republic
+X-WR-CALDESC:Public calendar for attendees and organizers of Python events in the Czech Republic
 BEGIN:VTIMEZONE
 TZID:Europe/Prague
 X-LIC-LOCATION:Europe/Prague
