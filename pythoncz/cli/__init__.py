@@ -2,18 +2,29 @@ import re
 import os
 import json
 import shlex
+import urllib
+import warnings
+import logging
 import subprocess
 from pathlib import Path
 
 import click
+import flask_frozen
 from slugify import slugify
 
+from pythoncz import app
 
-PROJECT_PATH = Path(__file__).parent.parent
-BUILDERS_PATH = PROJECT_PATH / 'data'
-WEB_BUILD_PATH = PROJECT_PATH / 'web' / 'build'
 
-BUILDERS_NAMES = [b.name for b in BUILDERS_PATH.iterdir() if b.is_dir()]
+PROJECT_PATH = Path(__file__).parent.parent.parent
+
+PAGES_PATH = PROJECT_PATH / 'pythoncz' / 'pages'
+PAGES_NAMES = [
+    item.name for item in PAGES_PATH.iterdir()
+    if item.is_dir() and (PAGES_PATH / item / '__main__.py').is_file()
+]
+
+WEB_BUILD_PATH = PROJECT_PATH / 'build'
+WEB_BASE_URL = 'https://python.cz'
 
 
 @click.group()
@@ -22,22 +33,41 @@ def cli():
 
 
 @cli.command()
+@click.option('--port', type=int, default=8000, help='Port to listen at')
+def serve(port):
+    app.run(host='0.0.0.0', port=port, debug=True)
+
+
+@cli.command()
 @click.argument('target', required=False)
-def build(target=None):
-    if target in BUILDERS_NAMES:
-        log(f'Building data for {target}')
-        run(f'python -m data.{target}')
-
+@click.pass_context
+def build(ctx, target=None):
+    if target in PAGES_NAMES:
+        build_page(target)
     elif target == 'web':
-        log(f'Building the website into {WEB_BUILD_PATH}')
-        run(f'python -m web freeze --path={WEB_BUILD_PATH} --no-cname')
-
+        build_web(app, WEB_BASE_URL, WEB_BUILD_PATH)
     else:
-        for builder in BUILDERS_NAMES:
-            log(f'Building data for {builder}')
-            run(f'python -m data.{builder}')
-        log(f'Building the website into {WEB_BUILD_PATH}')
-        run(f'python -m web freeze --path={WEB_BUILD_PATH} --no-cname')
+        for page_name in PAGES_NAMES:
+            build_page(page_name)
+        build_web(app, WEB_BASE_URL, WEB_BUILD_PATH)
+
+
+def build_page(name):
+    log(f'Building data for {name}')
+    run(f'python -m pythoncz.pages.{name}')
+
+
+def build_web(app, base_url, build_path):
+    log(f'Building web into {build_path}')
+    warnings.filterwarnings('error', category=flask_frozen.FrozenFlaskWarning)
+
+    app.config['FREEZER_DESTINATION'] = build_path
+    app.config['FREEZER_BASE_URL'] = base_url
+    app.config['SERVER_NAME'] = urllib.parse.urlparse(base_url).netloc
+
+    freezer = flask_frozen.Freezer(app)
+    for page in freezer.freeze_yield():
+        logging.info(f'Web path {page.url} done')
 
 
 @cli.command()

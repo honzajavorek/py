@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-import cli
+from pythoncz import cli
 
 
 @pytest.mark.parametrize('name,expected', [
