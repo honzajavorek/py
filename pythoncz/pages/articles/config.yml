@@ -1,0 +1,27 @@
+feeds:
+  - title: Python v ČR bloguje
+    url: http://blog.python.cz/
+    rss_url: http://blog.python.cz/feed.xml
+  - title: News from the Python Software Foundation
+    url: https://pyfound.blogspot.com/
+    rss_url: https://feeds.feedburner.com/PythonSoftwareFoundationNews
+  - title: Články o Pythonu na Root.cz
+    url: https://www.root.cz/n/python/
+    rss_url: https://www.root.cz/rss/clanky/n/python/
+  - title: Zprávičky o Pythonu na Root.cz
+    url: https://www.root.cz/n/python/
+    rss_url: https://www.root.cz/rss/zpravicky/n/python/
+  - title: Python na Zdroják.cz
+    url: https://www.zdrojak.cz/n/python/
+    rss_url: https://www.zdrojak.cz/n/python/feed/
+  - title: RoboProjekt
+    url: https://roboprojekt.pyladies.cz/
+    rss_url: https://roboprojekt.pyladies.cz/feed.xml
+
+articles:
+  - title: A letter to the Python community in Africa
+    date: "2019-01-17"
+    url: https://medium.com/@anthonypjshaw/a-letter-to-the-python-community-in-africa-fe88cd0b3096
+  - title: O PyLadies – dámách, které se učí zkrotit hada
+    date: "2018-10-01"
+    url: https://blog.proudly.cz/homepage-proudly-clanky/o-pyladies-damach-ktere-se-uci-zkrotit-hada

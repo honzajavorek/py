@@ -1,0 +1,8 @@
+<h1>Articles</h1>
+<p><a href="{{ url_for('index') }}">Index</a></p>
+<hr>
+<ul>
+{% for article in articles %}
+    <li>{{ article.title }}</li>
+{% endfor %}
+</ul>

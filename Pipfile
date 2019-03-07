@@ -17,8 +17,9 @@ flask = "~=1.0.2"
 click = "~=7.0"
 python-slugify = "~=2.0.1"
 ics = "==0.4"
-arrow = "==0.4.2"  # can't use newer because of ics :(
+arrow = "==0.4.2"  # can't use newer because of 'ics' https://github.com/C4ptainCrunch/ics.py/issues/153
 frozen-flask = "==0.15"
+feedparser = "~=5.2.1"
 
 [dev-packages]
 # Pinning packages with ~= unless their version starts with 0.,

@@ -7,4 +7,5 @@ app.config['JSON_AS_ASCII'] = False
 
 
 import pythoncz.pages.index.views
+import pythoncz.pages.articles.views
 import pythoncz.pages.events.views

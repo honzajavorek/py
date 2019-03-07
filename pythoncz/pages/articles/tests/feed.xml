@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Feed</title>
+    <link href="http://example.com/articles.xml" rel="self"/>
+    <id>http://example.com/articles/</id>
+    <updated>2019-03-07T11:19:54.166122+00:00</updated>
+    <entry>
+        <id>http://example.com/1.html</id>
+        <title>Title 1</title>
+        <link href="http://example.com/1.html" rel="alternate" type="text/html"/>
+        <published>2019-02-22T14:00:00+00:00</published>
+        <updated>2019-02-22T14:00:00+00:00</updated>
+    </entry>
+    <entry>
+        <id>http://example.com/2.html</id>
+        <title>Title 2</title>
+        <link href="http://example.com/2.html" rel="alternate" type="text/html"/>
+        <published>2019-02-19T17:00:00+00:00</published>
+        <updated>2019-02-19T17:00:00+00:00</updated>
+    </entry>
+</feed>

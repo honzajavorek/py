@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Python v ČR</title>
+    <link href="{{ url_for('articles', _external=True)|escape }}" rel="alternate" />
+    <link href="{{ url_for('articles_rss', _external=True)|escape }}" rel="self" />
+    <id>{{ url_for('articles', _external=True)|escape }}</id>
+    <updated>{{ date.isoformat() }}</updated>
+
+    {% for article in articles %}
+        <entry>
+            <id>{{ article.url|escape }}</id>
+            <title>{{ article.title|escape }}</title>
+            <link href="{{ article.url|escape }}" rel="alternate" type="text/html" />
+            <published>{{ article.date.isoformat() }}</published>
+            <updated>{{ article.date.isoformat() }}</updated>
+            {% if article.feed %}
+                <author>
+                    <name>{{ article.feed.title }}</name>
+                    <uri>{{ article.feed.url }}</uri>
+                </author>
+            {% endif %}
+        </entry>
+    {% endfor %}
+</feed>

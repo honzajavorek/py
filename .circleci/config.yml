@@ -30,6 +30,17 @@ jobs:
           name: send coverage report
           command: pipenv run codecov
 
+  build_articles:
+    executor: python
+    steps:
+      - attach_workspace:
+          at: "~"
+      - run: pipenv run build articles
+      - persist_to_workspace:
+          root: "~"
+          paths:
+              - project/pythoncz/pages/articles/*_data.json
+
   build_events:
     executor: python
     steps:
@@ -70,11 +81,15 @@ workflows:
   default_workflow: &default_workflow
     jobs:
       - install_and_test
+      - build_articles:
+          requires:
+            - install_and_test
       - build_events:
           requires:
             - install_and_test
       - build_web:
           requires:
+            - build_articles
             - build_events
       - deploy:
           requires:
