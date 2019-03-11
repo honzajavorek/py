@@ -7,10 +7,10 @@ import yaml
 PROJECT_PATH = Path(__file__).parent
 
 PAGES_PATH = PROJECT_PATH / 'pythoncz' / 'pages'
-PAGE_BUILDERS_NAMES = [
+PAGE_BUILDERS_NAMES = sorted(
     item.name for item in PAGES_PATH.iterdir()
     if item.is_dir() and (PAGES_PATH / item / '__main__.py').is_file()
-]
+)
 
 
 @pytest.fixture
@@ -38,21 +38,31 @@ def test_ci_config_runs_all_page_builders(builder_name, config):
     }
 
 
-def test_ci_config_fans_out_page_builders_in_workflow(config):
+def test_ci_config_workflow_starts_with_install(config):
     default_workflow_jobs = config['workflows']['default_workflow']['jobs']
 
-    builders_job_names = [
-        f'build_{builder_name}'
-        for builder_name in PAGE_BUILDERS_NAMES
-    ]
+    assert default_workflow_jobs[0] == 'install_and_test'
+
+
+def test_ci_config_workflow_fans_out_to_page_builders(config):
+    default_workflow_jobs = config['workflows']['default_workflow']['jobs']
     builders_jobs = [
         {f'build_{builder_name}': {'requires': ['install_and_test']}}
         for builder_name in PAGE_BUILDERS_NAMES
     ]
-    builders_count = len(builders_job_names)
+    builders_count = len(PAGE_BUILDERS_NAMES)
 
-    assert default_workflow_jobs[0] == 'install_and_test'
     assert default_workflow_jobs[1:builders_count + 1] == builders_jobs
+
+
+def test_ci_config_workflow_fans_into_web_build(config):
+    default_workflow_jobs = config['workflows']['default_workflow']['jobs']
+    builders_count = len(PAGE_BUILDERS_NAMES)
+    builders_job_names = [
+        f'build_{builder_name}'
+        for builder_name in PAGE_BUILDERS_NAMES
+    ]
+
     assert default_workflow_jobs[builders_count + 1] == {
         'build_web': {'requires': builders_job_names}
     }

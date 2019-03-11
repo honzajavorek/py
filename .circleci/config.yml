@@ -25,7 +25,7 @@ jobs:
               - project
       - run:
           name: run tests
-          command: pipenv run test
+          command: pipenv run test -v
       - run:
           name: send coverage report
           command: pipenv run codecov
