@@ -23,8 +23,7 @@ def articles_rss():
     articles = articles[:50]
     rss_text = render_template('articles.xml',
                                date=arrow.utcnow(), articles=articles)
-    mimetype = 'text/xml' if app.debug is True else 'application/atom+xml'
-    return Response(rss_text, mimetype=mimetype)
+    return Response(rss_text, mimetype='application/xml')
 
 
 @app.route('/articles.json')
