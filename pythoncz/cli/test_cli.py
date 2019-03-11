@@ -11,29 +11,22 @@ from pythoncz import cli
     ('branch-name', 'pythoncz-branch-name'),
     ('pyvec/branch-name', 'pythoncz-pyvec-branch-name'),
 ])
-def test_to_deployment_name(name, expected):
-    assert cli.to_deployment_name(name) == expected
+def test_to_now_deployment_name(name, expected):
+    assert cli.to_now_deployment_name(name) == expected
 
 
-def test_create_now_config():
-    deployment_name = 'pythoncz-pyvec-branch-name'
-    paths = [
+def test_to_now_builds():
+    assert cli.to_now_builds([
         Path('index.html'),
         Path('pages/index.html'),
         Path('images/avatar.png'),
         Path('robots.txt'),
+    ]) == [
+        {'src': 'index.html', 'use': '@now/html-minifier'},
+        {'src': 'pages/index.html', 'use': '@now/html-minifier'},
+        {'src': 'images/avatar.png', 'use': '@now/optipng'},
+        {'src': 'robots.txt', 'use': '@now/static'},
     ]
-
-    assert cli.create_now_config(deployment_name, paths) == {
-        'version': 2,
-        'name': 'pythoncz-pyvec-branch-name',
-        'builds': [
-            {'src': 'index.html', 'use': '@now/html-minifier'},
-            {'src': 'pages/index.html', 'use': '@now/html-minifier'},
-            {'src': 'images/avatar.png', 'use': '@now/optipng'},
-            {'src': 'robots.txt', 'use': '@now/static'},
-        ]
-    }
 
 
 @pytest.mark.parametrize('path,expected_src,expected_use', [

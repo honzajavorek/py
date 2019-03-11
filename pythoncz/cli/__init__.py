@@ -16,6 +16,7 @@ from pythoncz import app
 
 
 PROJECT_PATH = Path(__file__).parent.parent.parent
+NOW_CONFIG_DEFAULTS = PROJECT_PATH / 'now-defaults.json'
 
 PAGES_PATH = PROJECT_PATH / 'pythoncz' / 'pages'
 PAGE_BUILDERS_NAMES = [
@@ -73,12 +74,15 @@ def build_web(app, base_url, build_path):
 @cli.command()
 @click.argument('name', required=False)
 def deploy(name=None):
-    deployment_name = to_deployment_name(name)
+    deployment_name = to_now_deployment_name(name)
 
-    now_config = create_now_config(deployment_name, [
+    now_config = json.loads(NOW_CONFIG_DEFAULTS.read_text())
+    now_config['name'] = deployment_name
+    now_config['builds'] = to_now_builds([
         path.relative_to(WEB_BUILD_PATH)
         for path in WEB_BUILD_PATH.glob('**/*')
     ])
+
     now_config_path = WEB_BUILD_PATH / 'now.json'
     log(f'Writing {now_config_path}')
     now_config_path.write_text(json.dumps(now_config))
@@ -98,18 +102,17 @@ def deploy(name=None):
     run(f'now alias {deployment_url} {alias_url} {token_option}')
 
 
-def to_deployment_name(name):
+def to_now_deployment_name(name):
     if name == 'master' or name is None:
         return 'pythoncz'
     return f'pythoncz-{slugify(name)}'
 
 
-def create_now_config(deployment_name, paths):
-    return {
-        'version': 2,
-        'name': deployment_name,
-        'builds': [path_to_now_build(path) for path in paths],
-    }
+def to_now_builds(paths):
+    # Beware! This function is taking care of 'now.sh builds', which are
+    # something completely different than 'page builders' mentioned elsewhere
+    # in the python.cz project.
+    return [path_to_now_build(path) for path in paths]
 
 
 def path_to_now_build(path):

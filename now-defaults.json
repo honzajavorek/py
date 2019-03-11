@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "name": "pythoncz",
+  "builds": [],
+  "routes": [
+    { "src": "/english.html", "status": 301, "headers": { "Location": "/en/" } }
+  ]
+}
