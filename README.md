@@ -15,6 +15,9 @@ This is [@honzajavorek](https://github.com/honzajavorek/)'s experimental playgro
     - `pythoncz/static/talks`
     - `pythoncz/static/photos`
 - The project uses [CircleCI](http://circleci.com/) as it has a lot of features, supports fanning out individual builders, supports crontab syntax in the config, and runs the builds at once without waiting.
+
+  ![CircleCI](./fanning-out-builds.png)
+
 - The project uses [Now](https://zeit.co/now) for deployments as it supports redirects and various other features. There is a custom deployment script in the CLI to pioneer the best way how to automatically deploy to Now - see [pyvec/elsa#61](https://github.com/pyvec/elsa/issues/61).
 - The project structure is broken down to separate page builders and the website, with the intention to keep maintainable testability, clear interfaces, and to have the simplest code possible. With such separation it's also easy to develop the site locally with only a certain part of the site backed by real data. (Addressing [#279](https://github.com/pyvec/python.cz/issues/279))
 - The main purpose of the python.cz website is now defined as an _aggregator_. It should be a place where all the diversity of the Czech Python community's activities federates and where individual projects can be discovered:
