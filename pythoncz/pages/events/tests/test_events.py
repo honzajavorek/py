@@ -18,7 +18,6 @@ def ics_text_without_valarm():
     return (Path(__file__).parent / 'without_valarm.ics').read_text()
 
 
-@pytest.fixture
 def feed():
     return {
         'name': 'Czech Python Events',
@@ -27,7 +26,11 @@ def feed():
     }
 
 
-@pytest.fixture
+@pytest.fixture(name='feed')
+def feed_fixture():
+    return feed()
+
+
 def ics_event():
     ics_event = Event()
     ics_event.uid = '65jd6rs6vb3h0hh0ofn1dvlgaj@google.com'
@@ -38,6 +41,11 @@ def ics_event():
     ics_event.begin = arrow.get('2018-04-04T00:00:00')
     ics_event.categories = set()
     return ics_event
+
+
+@pytest.fixture(name='ics_event')
+def ics_event_fixture():
+    return ics_event()
 
 
 def test_skip_valarm_lines(ics_text_with_valarm, ics_text_without_valarm):

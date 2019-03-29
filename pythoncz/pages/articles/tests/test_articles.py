@@ -20,7 +20,6 @@ def rss_bytes():
     return (Path(__file__).parent / 'feed.xml').read_bytes()
 
 
-@pytest.fixture
 def feed():
     return {
         'title': 'Zprávičky o Pythonu na Root.cz',
@@ -29,13 +28,22 @@ def feed():
     }
 
 
-@pytest.fixture
+@pytest.fixture(name='feed')
+def feed_fixture():
+    return feed()
+
+
 def rss_entry():
     return Entry(
         title='Kritická zranitelnost v NumPy',
         published_parsed=time.gmtime(1551955579),
         link='http://example.com',
     )
+
+
+@pytest.fixture(name='rss_entry')
+def rss_entry_fixture():
+    return rss_entry()
 
 
 def test_sort_articles():

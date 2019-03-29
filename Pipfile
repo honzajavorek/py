@@ -12,10 +12,10 @@ deploy = "python -m pythoncz deploy"
 [packages]
 # Pinning packages with ~= unless their version starts with 0.,
 # then pinning each version strictly with ==
-pyyaml = "~=4.2b1"
+pyyaml = "~=5.1"
 flask = "~=1.0.2"
 click = "~=7.0"
-python-slugify = "~=2.0.1"
+python-slugify = "~=3.0.1"
 ics = "==0.4"
 arrow = "==0.4.2"  # can't use newer because of 'ics' https://github.com/C4ptainCrunch/ics.py/issues/153
 frozen-flask = "==0.15"
@@ -25,12 +25,9 @@ feedparser = "~=5.2.1"
 # Pinning packages with ~= unless their version starts with 0.,
 # then pinning each version strictly with ==
 pylama = "~=7.6.6"
-pytest = "~=3.7.2"
-pytest-cov = "~=2.5.1"
+pytest = "~=4.3.1"
+pytest-cov = "~=2.6.1"
 codecov = "~=2.0.15"
 
 [requires]
 python_version = "3.7"
-
-[pipenv]
-allow_prereleases = true
