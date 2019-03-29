@@ -12,7 +12,7 @@ deploy = "python -m pythoncz deploy"
 [packages]
 # Pinning packages with ~= unless their version starts with 0.,
 # then pinning each version strictly with ==
-pyyaml = "~=4.2b1"
+pyyaml = "~=5.1"
 flask = "~=1.0.2"
 click = "~=7.0"
 python-slugify = "~=2.0.1"
