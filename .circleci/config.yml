@@ -1,5 +1,6 @@
 version: 2.1
 
+
 executors:
   python:
     docker:
@@ -9,6 +10,7 @@ executors:
     docker:
       - image: circleci/python:3.7-node
     working_directory: ~/project
+
 
 jobs:
   install_and_test:
@@ -72,12 +74,15 @@ jobs:
           name: install 'now'
           command: sudo npm install --global --unsafe-perm now
       - run:
-          # $NOW_TOKEN needs to be set
           name: deploy
-          command: pipenv run deploy "$CIRCLE_BRANCH"
+          command: |
+            [[ "$CIRCLE_BRANCH" == "master" ]] && NOW_TARGET="production"
+            pipenv run deploy  # $NOW_TOKEN needs to be set in CircleCI
+
 
 workflows:
   version: 2
+
   default_workflow: &default_workflow
     jobs:
       - install_and_test
@@ -94,10 +99,7 @@ workflows:
       - deploy:
           requires:
             - build_web
-          filters:
-            branches:
-              only:
-                - master
+
   nightly_workflow:
     <<: *default_workflow
     triggers:

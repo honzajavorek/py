@@ -82,8 +82,7 @@ Thanks to the fact only the pure, library functions are (unit) tested, the test 
 - `pipenv run build` - builds all pages and the static website
 - `pipenv run build events` - builds only data for the 'events' page
 - `pipenv run build web` - builds only the static website
-- `pipenv run deploy` - deploys contents of the `build` directory to [Now](https://zeit.co/now), aliasing to https://pythoncz.now.sh/
-- `pipenv run deploy foo` - deploys contents of the `build` directory to [Now](https://zeit.co/now), aliasing to `https://pythoncz-foo.now.sh/`
+- `pipenv run deploy` - deploys contents of the `build` directory to [Now](https://zeit.co/now)
 
 ## Development workflow
 

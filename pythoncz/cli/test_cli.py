@@ -5,16 +5,6 @@ import pytest
 from pythoncz import cli
 
 
-@pytest.mark.parametrize('name,expected', [
-    (None, 'pythoncz'),
-    ('master', 'pythoncz'),
-    ('branch-name', 'pythoncz-branch-name'),
-    ('pyvec/branch-name', 'pythoncz-pyvec-branch-name'),
-])
-def test_to_now_deployment_name(name, expected):
-    assert cli.to_now_deployment_name(name) == expected
-
-
 def test_to_now_builds():
     assert cli.to_now_builds([
         Path('index.html'),

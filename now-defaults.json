@@ -1,6 +1,7 @@
 {
   "version": 2,
   "name": "pythoncz",
+  "alias": "pythoncz.now.sh",
   "builds": [],
   "routes": [
     { "src": "/english.html", "status": 301, "headers": { "Location": "/en/" } }
