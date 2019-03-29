@@ -76,7 +76,7 @@ jobs:
       - run:
           name: deploy
           command: |
-            [[ "$CIRCLE_BRANCH" == "master" ]] && NOW_TARGET="production"
+            [[ "$CIRCLE_BRANCH" == "master" ]] && export NOW_TARGET="production"
             pipenv run deploy  # $NOW_TOKEN needs to be set in CircleCI
 
 
