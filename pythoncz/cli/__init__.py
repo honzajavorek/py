@@ -1,4 +1,3 @@
-import re
 import os
 import json
 import shlex
@@ -10,7 +9,6 @@ from pathlib import Path
 
 import click
 import flask_frozen
-from slugify import slugify
 
 from pythoncz import app
 
@@ -72,12 +70,9 @@ def build_web(app, base_url, build_path):
 
 
 @cli.command()
-@click.argument('name', required=False)
-def deploy(name=None):
-    deployment_name = to_now_deployment_name(name)
-
+@click.argument('target', required=False)
+def deploy(target=None):
     now_config = json.loads(NOW_CONFIG_DEFAULTS.read_text())
-    now_config['name'] = deployment_name
     now_config['builds'] = to_now_builds([
         path.relative_to(WEB_BUILD_PATH)
         for path in WEB_BUILD_PATH.glob('**/*')
@@ -90,22 +85,11 @@ def deploy(name=None):
     token = os.getenv('NOW_TOKEN') or None
     token_option = f'--token={token}' if token else ''
 
-    log(f'Deploying {WEB_BUILD_PATH}')
-    run(f'now {WEB_BUILD_PATH} {token_option}')
+    target = target or os.getenv('NOW_TARGET') or None
+    target_option = f'--target={target}' if target else ''
 
-    alias_url = f'{deployment_name}.now.sh'
-    deployments_list = run(f'now ls {deployment_name} {token_option}',
-                           stdout=True).stdout.decode('utf-8')
-    deployment_url = re.search(deployment_name + r'-[^\.]+\.now\.sh',
-                               deployments_list).group(0)
-    log(f'Aliasing {deployment_url} to {alias_url}')
-    run(f'now alias {deployment_url} {alias_url} {token_option}')
-
-
-def to_now_deployment_name(name):
-    if name == 'master' or name is None:
-        return 'pythoncz'
-    return f'pythoncz-{slugify(name)}'
+    log(f'Deploying {WEB_BUILD_PATH} to {target}')
+    run(f'now {WEB_BUILD_PATH} {target_option} {token_option}')
 
 
 def to_now_builds(paths):
