@@ -25,7 +25,7 @@ feedparser = "~=5.2.1"
 # Pinning packages with ~= unless their version starts with 0.,
 # then pinning each version strictly with ==
 pylama = "~=7.6.6"
-pytest = "~=4.3.1"
+pytest = "~=4.4.0"
 pytest-cov = "~=2.6.1"
 codecov = "~=2.0.15"
 
