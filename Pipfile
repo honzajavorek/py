@@ -15,7 +15,7 @@ deploy = "python -m pythoncz deploy"
 pyyaml = "~=5.1"
 flask = "~=1.0.2"
 click = "~=7.0"
-python-slugify = "~=3.0.1"
+python-slugify = "~=3.0.2"
 ics = "==0.4"
 arrow = "==0.4.2"  # can't use newer because of 'ics' https://github.com/C4ptainCrunch/ics.py/issues/153
 frozen-flask = "==0.15"
