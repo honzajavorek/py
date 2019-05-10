@@ -19,12 +19,12 @@ feeds:
     rss_url: https://roboprojekt.pyladies.cz/feed.xml
 
 articles:
-  - title: A letter to the Python community in Africa
+  - title: "A letter to the Python community in Africa"
     date: "2019-01-17"
     url: https://medium.com/@anthonypjshaw/a-letter-to-the-python-community-in-africa-fe88cd0b3096
-  - title: O PyLadies – dámách, které se učí zkrotit hada
+  - title: "O PyLadies – dámách, které se učí zkrotit hada"
     date: "2018-10-01"
     url: https://blog.proudly.cz/homepage-proudly-clanky/o-pyladies-damach-ktere-se-uci-zkrotit-hada
-  - title: Andreas Gajdošík: Často slýchávám otázku „Co je na tom za umění?“ 
+  - title: "Andreas Gajdošík: Často slýchávám otázku „Co je na tom za umění?“"
     date: "2019-04-30"
     url: https://artalk.cz/2019/04/30/andreas-gajdosik-casto-slychavam-otazku-co-je-na-tom-za-umeni/
