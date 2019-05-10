@@ -1,0 +1,7 @@
+[run]
+# Cover only pages/*/__init__.py, which contian pure functions, omit the rest
+source = pythoncz/pages
+omit =
+    pythoncz/pages/*/__main__.py
+    pythoncz/pages/*/views.py
+    pythoncz/pages/*/test*
