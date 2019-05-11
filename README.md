@@ -4,7 +4,7 @@ This is [@honzajavorek](https://github.com/honzajavorek/)'s experimental playgro
 
 ## Status
 
-[![CircleCI](https://circleci.com/gh/honzajavorek/py/tree/master.svg?style=svg)](https://circleci.com/gh/honzajavorek/py/tree/master) [![Codecov](https://codecov.io/gh/honzajavorek/py/branch/master/graph/badge.svg)](https://codecov.io/gh/honzajavorek/py)
+![CircleCI](https://img.shields.io/circleci/project/github/honzajavorek/py/master.svg?style=popout) ![Codecov](https://img.shields.io/codecov/c/github/honzajavorek/py/master.svg?style=popout)
 
 ## Fundamental changes
 
