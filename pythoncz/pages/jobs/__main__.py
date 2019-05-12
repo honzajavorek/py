@@ -1,20 +1,16 @@
 import os
 import itertools
-import functools
 from pathlib import Path
 
 import requests
 import yaml
-import geocoder
-from unidecode import unidecode
 
 from pythoncz import log
 from pythoncz.data import save_data
-from pythoncz.pages.jobs import (get_jobs, jobs_from_bytes, stats_from_jobs,
-                                 companies_from_jobs, group_by_pagination,
-                                 paginate_url, get_job_details_parser,
-                                 parse_geocode_result, embed_location_data,
-                                 is_relevant_job)
+from pythoncz.pages.jobs import (geo, get_jobs, jobs_from_bytes,
+                                 # stats_from_jobs, companies_from_jobs,
+                                 group_by_pagination, paginate_url,
+                                 get_job_details_parser, is_relevant_job)
 
 
 logger = log.get('pythoncz.pages.jobs')
@@ -67,49 +63,51 @@ def download_job_details(job):
         try:
             logger.info(f"Downloading {url}")
             response_bytes = download_as_bytes(url)
-        except Exception as request_exc:
-            exc = RuntimeError(f'Could not get job details from {url}')
-            raise exc from request_exc
-
-        for job_details in job_details_from_bytes(response_bytes, url):
-            yield {**job, **job_details}
-
-
-@functools.lru_cache()
-def geocode(text, api_key):
-    text_ascii = unidecode(text)
-
-    result = geocoder.google(text_ascii, key=api_key,
-                             language='cs', region='cz')
-    region, country = parse_geocode_result(result)
-
-    if ',' in text and not region:
-        result = geocoder.google(result.latlng, key=api_key, method='reverse',
-                                 language='cs', region='cz')
-        region, country = parse_geocode_result(result)
-
-    if country == 'Česko':
-        return dict(region=region, country=country)
-
-    result_en = geocoder.google(result.latlng, key=api_key, method='reverse',
-                                language='en', region='cz')
-    region_en, country_en = parse_geocode_result(result_en)
-    return dict(region=region, region_en=region_en,
-                country=country, country_en=country_en)
+        except Exception as exc:
+            logger.warning(f'Could not get job details from {url}: '
+                           + exc.message)
+            yield job
+        else:
+            for job_details in job_details_from_bytes(response_bytes, url):
+                yield {**job, **job_details}
 
 
-def geocode_job_location(job, api_key):
-    if job['location']:
-        return embed_location_data(job, geocode(job['location'], api_key))
-    return job
+def download_details(jobs):
+    return itertools.chain.from_iterable(map(download_job_details, jobs))
 
 
-def is_relevant_job_with_logging(job, agencies):
+def is_relevant_job_with_logging(job, agencies=None):
     is_relevant = is_relevant_job(job, agencies)
     if not is_relevant:
         logger.info(f"Skipping {job['url']}"
-                    f" ({job['company_name']} @ {job['location']})")
+                    f" ({job['company_name']} @ {job['raw_location']})")
     return is_relevant
+
+
+def keep_relevant_jobs(jobs, agencies=None):
+    return (job for job in jobs
+            if is_relevant_job_with_logging(job, agencies))
+
+
+def parse_locations(jobs):
+    return ({**job, 'location': geo.parse(job['raw_location'])}
+            for job in jobs if not job.get('location'))
+
+
+def geocode_job_location(job):
+    location = job.get('location')
+    if location is not None:
+        return location
+
+    if job.get('raw_location') is None:
+        raise RuntimeError('Cannot determine job location')
+
+    query = geo.query(job['raw_location'])
+    return geo.execute(query)
+
+
+def geocode_locations(jobs):
+    return ({**job, 'location': geocode_job_location(job)} for job in jobs)
 
 
 config_path = Path(__file__).parent / 'config.yml'
@@ -132,17 +130,26 @@ not_paginaged_feeds_jobs = (
 
 
 feeds_jobs = itertools.chain(paginated_feeds_jobs, not_paginaged_feeds_jobs)
-jobs = (job for job in get_jobs(feeds_jobs)
-        if is_relevant_job_with_logging(job, config['agencies']))
-jobs = itertools.chain.from_iterable(map(download_job_details, jobs))
-jobs = [geocode_job_location(job, google_api_key) for job in jobs]
+jobs = get_jobs(feeds_jobs)
+
+jobs = keep_relevant_jobs(jobs, config['agencies'])
+jobs = parse_locations(jobs)
+jobs = keep_relevant_jobs(jobs)
+jobs = download_details(jobs)
+jobs = parse_locations(jobs)
+jobs = keep_relevant_jobs(jobs)
+jobs = geocode_locations(jobs)
+jobs = keep_relevant_jobs(jobs)
+jobs = list(jobs)
 
 
 data_path = Path(__file__).parent / 'jobs_data.json'
 save_data(data_path, jobs)
 
-data_path = Path(__file__).parent / 'stats_data.json'
-save_data(data_path, stats_from_jobs(jobs))
+# TODO
 
-data_path = Path(__file__).parent / 'companies_data.json'
-save_data(data_path, companies_from_jobs(jobs))
+# data_path = Path(__file__).parent / 'stats_data.json'
+# save_data(data_path, stats_from_jobs(jobs))
+
+# data_path = Path(__file__).parent / 'companies_data.json'
+# save_data(data_path, companies_from_jobs(jobs))
