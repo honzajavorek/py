@@ -99,64 +99,31 @@ def test_parse_no_match(raw_location):
     assert geo.parse(raw_location) is None
 
 
-def test_query_location_can_be_parsed():
-    query = geo.query('Uliční 1, Brno, Česká republika')
-    with pytest.raises(StopIteration) as excinfo:
-        next(query)
-
-    assert excinfo.value.value == 'cz_jhm'
-
-
-def test_execute_location_can_be_parsed():
-    def geocode():
+def test_resolve_location_can_be_parsed():
+    def geocode(raw_location):
         raise AssertionError('This scenario should not call geocode()')
 
-    query = geo.query('Uliční 1, Brno, Česká republika')
-    location = geo.execute(query, geocode=geocode)
+    raw_location = 'Uliční 1, Brno, Česká republika'
+    location = geo.resolve(raw_location, geocode=geocode)
 
     assert location == 'cz_jhm'
 
 
-def test_query_location_geocoded():
-    query = geo.query('Nový dvůr 232, Letohrad, Česká republika')
-    raw_location = next(query)
+def test_resolve_location_geocoded():
+    def geocode(raw_location):
+        return 'Pardubický kraj, Česko'
 
-    with pytest.raises(StopIteration) as excinfo:
-        query.send('Pardubický kraj, Česko')
-
-    assert raw_location == 'Nový dvůr 232, Letohrad, Česká republika'
-    assert excinfo.value.value == 'cz_pak'
-
-
-def test_execute_location_geocoded():
-    query = geo.query('Nový dvůr 232, Letohrad, Česká republika')
-    location = geo.execute(query, geocode=lambda _: 'Pardubický kraj, Česko')
+    raw_location = 'Nový dvůr 232, Letohrad, Česká republika'
+    location = geo.resolve(raw_location, geocode=geocode)
 
     assert location == 'cz_pak'
 
 
-def test_query_location_geocoded_but_out_of_scope():
-    query = geo.query('Embassy of Czechia, USA')
-    raw_location = next(query)
+def test_resolve_location_geocoded_but_out_of_scope():
+    def geocode(raw_location):
+        return 'Washington, USA'
 
-    with pytest.raises(StopIteration) as excinfo:
-        query.send('Washington, USA')
-
-    assert raw_location == 'Embassy of Czechia, USA'
-    assert excinfo.value.value == 'out_of_scope'
-
-
-def test_execute_location_geocoded_but_out_of_scope():
-    query = geo.query('Embassy of Czechia, USA')
-    location = geo.execute(query, geocode=lambda _: 'Washington, USA')
+    raw_location = 'Embassy of Czechia, USA'
+    location = geo.resolve(raw_location, geocode=geocode)
 
     assert location == 'out_of_scope'
-
-
-def test_execute_unexpected_query_behavior():
-    def create_query():
-        while True:
-            yield 'New York, NY 10016, USA'
-
-    with pytest.raises(RuntimeError):
-        geo.execute(create_query(), geocode=lambda _: 'New York, USA')

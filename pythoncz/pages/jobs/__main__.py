@@ -42,9 +42,9 @@ def download_feed_paginated(feed):
             response_bytes = download_as_bytes(url)
         except requests.HTTPError:
             break
-        except Exception as request_exc:
+        except Exception as exc:
             exc = RuntimeError(f'Could not get jobs feed from {url}')
-            raise exc from request_exc
+            raise exc from exc
 
         jobs = list(jobs_from_bytes(feed['id'], response_bytes, url))
         if not jobs:
@@ -63,9 +63,10 @@ def download_job_details(job):
         try:
             logger.info(f"Downloading {url}")
             response_bytes = download_as_bytes(url)
-        except Exception as exc:
-            logger.warning(f'Could not get job details from {url}: '
-                           + exc.message)
+        except Exception:
+            # Some jobs are expired and their detail doesn't load even though
+            # they're listed in APIs, exports, search results
+            logger.exception('Could not get job details from {url}')
             yield job
         else:
             for job_details in job_details_from_bytes(response_bytes, url):
@@ -94,20 +95,15 @@ def parse_locations(jobs):
             for job in jobs if not job.get('location'))
 
 
-def geocode_job_location(job):
-    location = job.get('location')
-    if location is not None:
-        return location
-
-    if job.get('raw_location') is None:
-        raise RuntimeError('Cannot determine job location')
-
-    query = geo.query(job['raw_location'])
-    return geo.execute(query)
-
-
-def geocode_locations(jobs):
-    return ({**job, 'location': geocode_job_location(job)} for job in jobs)
+def geocode_locations(jobs, api_key=None):
+    return (
+        {**job,
+         'location': (
+             job.get('location')
+             or geo.resolve(job['raw_location'], api_key=api_key)
+         )}
+        for job in jobs
+    )
 
 
 config_path = Path(__file__).parent / 'config.yml'
@@ -138,7 +134,7 @@ jobs = keep_relevant_jobs(jobs)
 jobs = download_details(jobs)
 jobs = parse_locations(jobs)
 jobs = keep_relevant_jobs(jobs)
-jobs = geocode_locations(jobs)
+jobs = geocode_locations(jobs, api_key=google_api_key)
 jobs = keep_relevant_jobs(jobs)
 jobs = list(jobs)
 

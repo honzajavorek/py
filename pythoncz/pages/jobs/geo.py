@@ -77,29 +77,9 @@ def geocode(raw_location, **options):
     return ', '.join(filter(None, [region, country]))
 
 
-# To make following part testable, it is heavily inspired by the interface
-# of https://github.com/ariebovenberg/snug/
-
-
-def query(raw_location):
-    location_code = parse(raw_location)
-    if location_code is None:
-        location = yield raw_location
-        return parse(location)
-    return location_code
-
-
-def execute(query, **options):
-    try:
-        raw_location = next(query)
-    except StopIteration as e:
-        return e.value
-    else:
+def resolve(raw_location, **options):
+    location = parse(raw_location)
+    if location is None:
         geocode_fn = options.pop('geocode', geocode)
-        location = geocode_fn(raw_location, **options)
-        try:
-            query.send(location)
-        except StopIteration as e:
-            return e.value or 'out_of_scope'
-        else:
-            raise RuntimeError('Location query did not return any value')
+        return parse(geocode_fn(raw_location, **options))
+    return location
