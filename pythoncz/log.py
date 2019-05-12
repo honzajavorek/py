@@ -1,7 +1,10 @@
+import os
 import logging
 
 
-logging.basicConfig(format='%(name)s - %(levelname)s: %(message)s')
+level = getattr(logging, os.getenv('LOG_LEVEL', 'WARNING').upper())
+logging.basicConfig(format='%(name)s - %(levelname)s: %(message)s',
+                    level=level)
 
 
 def get(name):
