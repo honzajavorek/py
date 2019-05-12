@@ -10,7 +10,8 @@ from pythoncz.data import save_data
 from pythoncz.pages.jobs import (geo, get_jobs, jobs_from_bytes,
                                  # stats_from_jobs, companies_from_jobs,
                                  group_by_pagination, paginate_url,
-                                 get_job_details_parser, is_relevant_job)
+                                 get_job_details_parser, is_relevant_job,
+                                 get_company_id)
 
 
 logger = log.get('pythoncz.pages.jobs')
@@ -85,11 +86,13 @@ def is_relevant_job_with_logging(job, agencies=None):
     return is_relevant
 
 
+# TODO this is pure & testable
 def keep_relevant_jobs(jobs, agencies=None):
     return (job for job in jobs
             if is_relevant_job_with_logging(job, agencies))
 
 
+# TODO this is pure & testable
 def parse_locations(jobs):
     return ({**job, 'location': geo.parse(job['location_raw'])}
             for job in jobs if not job.get('location'))
@@ -102,6 +105,14 @@ def geocode_locations(jobs, api_key=None):
              job.get('location')
              or geo.resolve(job['location_raw'], api_key=api_key)
          )}
+        for job in jobs
+    )
+
+
+# TODO this is pure & testable
+def add_company_ids(jobs):
+    return (
+        {**job, 'company_id': get_company_id(job['company_name'])}
         for job in jobs
     )
 
@@ -136,6 +147,7 @@ jobs = parse_locations(jobs)
 jobs = keep_relevant_jobs(jobs)
 jobs = geocode_locations(jobs, api_key=google_api_key)
 jobs = keep_relevant_jobs(jobs)
+jobs = add_company_ids(jobs)
 jobs = list(jobs)
 
 

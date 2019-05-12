@@ -87,14 +87,6 @@ def paginate_url(url, page):
 #     return dict(cs=country, en=country_en)
 
 
-# def get_effective_location_key(effective_location):
-#     return '{cs}###{en}'.format_map(effective_location)
-
-
-# def get_company_key(company_name):
-#     return RE_COMPANY_NAME.sub('', company_name)
-
-
 # def stats_from_jobs(jobs):
 #     feeds = {}
 #     companies = set()
@@ -351,3 +343,7 @@ def is_relevant_job(job, agencies=None):
         job['company_name'] not in (agencies or [])
         and job.get('location') != 'out_of_scope'
     )
+
+
+def get_company_id(company_name):
+    return RE_COMPANY_NAME.sub('', company_name)
