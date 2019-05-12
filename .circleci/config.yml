@@ -12,6 +12,8 @@ executors:
     working_directory: ~/project
 
 
+# Some of the jobs need environment variables to be set. That can be done
+# in project settings: https://circleci.com/gh/honzajavorek/py/edit#env-vars
 jobs:
   install_and_test:
     executor: python
@@ -30,7 +32,7 @@ jobs:
           command: pipenv run test -v
       - run:
           name: send coverage report
-          command: pipenv run codecov
+          command: pipenv run codecov  # needs $CODECOV_TOKEN
 
   build_articles:
     executor: python
@@ -54,18 +56,16 @@ jobs:
           paths:
               - project/pythoncz/pages/events/*_data.json
 
-
   build_jobs:
     executor: python
     steps:
       - attach_workspace:
           at: "~"
-      - run: pipenv run build jobs
+      - run: pipenv run build jobs  # needs $GOOGLE_API_KEY
       - persist_to_workspace:
           root: "~"
           paths:
               - project/pythoncz/pages/jobs/*_data.json
-
 
   build_web:
     executor: python
@@ -90,7 +90,7 @@ jobs:
           name: deploy
           command: |
             [[ "$CIRCLE_BRANCH" == "master" ]] && export NOW_TARGET="production"
-            pipenv run deploy  # $NOW_TOKEN needs to be set in CircleCI
+            pipenv run deploy  # needs $NOW_TOKEN
 
 
 workflows:
