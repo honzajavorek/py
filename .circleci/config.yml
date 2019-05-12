@@ -54,6 +54,19 @@ jobs:
           paths:
               - project/pythoncz/pages/events/*_data.json
 
+
+  build_jobs:
+    executor: python
+    steps:
+      - attach_workspace:
+          at: "~"
+      - run: pipenv run build jobs
+      - persist_to_workspace:
+          root: "~"
+          paths:
+              - project/pythoncz/pages/jobs/*_data.json
+
+
   build_web:
     executor: python
     steps:
@@ -92,10 +105,14 @@ workflows:
       - build_events:
           requires:
             - install_and_test
+      - build_jobs:
+          requires:
+            - install_and_test
       - build_web:
           requires:
             - build_articles
             - build_events
+            - build_jobs
       - deploy:
           requires:
             - build_web
