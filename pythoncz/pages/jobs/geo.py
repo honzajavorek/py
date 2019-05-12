@@ -63,12 +63,24 @@ def parse(location_raw):
 def geocode(location_raw, **options):
     api_key = options.get('api_key')
 
+    # Using Google API to geocode locations to structured data. Used only for
+    # locations which cannot be identified by parse(). The geocoder library
+    # supports multiple APIs, but the Google's has the best results,
+    # unfortunately. Unfortunately because it is paid. Currently there's
+    # @honzajavorek's credit card behind the requests, so the code tries to
+    # minimize the number of needed requests as much as possible.
+
     result = geocoder.google(unidecode(location_raw), key=api_key,
                              language='cs', region='cz')
     region = result.state_long or result.locality
     country = result.country_long
 
     if ',' in location_raw and not region:
+        # Google returns canonical address needed for a certain place. In case
+        # the canonical address doesn't require the region to be there, it
+        # doesn't bother to return it in the result. In such cases it is
+        # necessary to reverse geocode the latitude and longitude, which should
+        # always result in having the region.
         result = geocoder.google(result.latlng, key=api_key, method='reverse',
                                  language='cs', region='cz')
         region = result.state_long or result.locality

@@ -347,3 +347,15 @@ def is_relevant_job(job, agencies=None):
 
 def get_company_id(company_name):
     return RE_COMPANY_NAME.sub('', company_name)
+
+
+def parse_locations(jobs):
+    return ({**job, 'location': geo.parse(job['location_raw'])}
+            for job in jobs if not job.get('location'))
+
+
+def add_company_ids(jobs):
+    return (
+        {**job, 'company_id': get_company_id(job['company_name'])}
+        for job in jobs
+    )
