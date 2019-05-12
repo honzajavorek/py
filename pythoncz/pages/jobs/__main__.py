@@ -1,3 +1,4 @@
+import os
 import itertools
 import functools
 from pathlib import Path
@@ -75,30 +76,31 @@ def download_job_details(job):
 
 
 @functools.lru_cache()
-def geocode(text):
+def geocode(text, api_key):
     text_ascii = unidecode(text)
 
-    result = geocoder.google(text_ascii, language='cs', region='cz')
+    result = geocoder.google(text_ascii, key=api_key,
+                             language='cs', region='cz')
     region, country = parse_geocode_result(result)
 
     if ',' in text and not region:
-        result = geocoder.google(result.latlng, method='reverse',
+        result = geocoder.google(result.latlng, key=api_key, method='reverse',
                                  language='cs', region='cz')
         region, country = parse_geocode_result(result)
 
     if country == 'Česko':
         return dict(region=region, country=country)
 
-    result_en = geocoder.google(result.latlng, method='reverse',
+    result_en = geocoder.google(result.latlng, key=api_key, method='reverse',
                                 language='en', region='cz')
     region_en, country_en = parse_geocode_result(result_en)
     return dict(region=region, region_en=region_en,
                 country=country, country_en=country_en)
 
 
-def geocode_job_location(job):
+def geocode_job_location(job, api_key):
     if job['location']:
-        return embed_location_data(job, geocode(job['location']))
+        return embed_location_data(job, geocode(job['location'], api_key))
     return job
 
 
@@ -112,6 +114,10 @@ def is_relevant_job_with_logging(job, agencies):
 
 config_path = Path(__file__).parent / 'config.yml'
 config = yaml.safe_load(config_path.read_text())
+
+google_api_key = os.getenv('GOOGLE_API_KEY')
+if not google_api_key:
+    raise ValueError('Environment variable GOOGLE_API_KEY is not set')
 
 
 paginated_feeds, not_paginaged_feeds = group_by_pagination(config['feeds'])
@@ -129,7 +135,7 @@ feeds_jobs = itertools.chain(paginated_feeds_jobs, not_paginaged_feeds_jobs)
 jobs = (job for job in get_jobs(feeds_jobs)
         if is_relevant_job_with_logging(job, config['agencies']))
 jobs = itertools.chain.from_iterable(map(download_job_details, jobs))
-jobs = list(map(geocode_job_location, jobs))
+jobs = [geocode_job_location(job, google_api_key) for job in jobs]
 
 
 data_path = Path(__file__).parent / 'jobs_data.json'

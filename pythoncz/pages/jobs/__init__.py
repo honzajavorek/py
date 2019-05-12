@@ -371,8 +371,8 @@ def is_relevant_job(job, agencies):
 
 
 def parse_geocode_result(geocode_result):
-    region = geocode_result.state_long or geocode_result.sublocality
+    region = geocode_result.state or geocode_result.county
     if region and 'Praha' in region:
         region = 'Praha'
-    country = geocode_result.country_long
+    country = geocode_result.country
     return region, country
