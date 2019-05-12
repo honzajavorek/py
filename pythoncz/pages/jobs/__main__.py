@@ -81,7 +81,7 @@ def is_relevant_job_with_logging(job, agencies=None):
     is_relevant = is_relevant_job(job, agencies)
     if not is_relevant:
         logger.info(f"Skipping {job['url']}"
-                    f" ({job['company_name']} @ {job['raw_location']})")
+                    f" ({job['company_name']} @ {job['location_raw']})")
     return is_relevant
 
 
@@ -91,7 +91,7 @@ def keep_relevant_jobs(jobs, agencies=None):
 
 
 def parse_locations(jobs):
-    return ({**job, 'location': geo.parse(job['raw_location'])}
+    return ({**job, 'location': geo.parse(job['location_raw'])}
             for job in jobs if not job.get('location'))
 
 
@@ -100,7 +100,7 @@ def geocode_locations(jobs, api_key=None):
         {**job,
          'location': (
              job.get('location')
-             or geo.resolve(job['raw_location'], api_key=api_key)
+             or geo.resolve(job['location_raw'], api_key=api_key)
          )}
         for job in jobs
     )

@@ -48,27 +48,27 @@ PARSE_PATTERNS = (
 )
 
 
-def parse(raw_location):
+def parse(location_raw):
     for location_code, patterns in PARSE_PATTERNS:
         for pattern in patterns:
-            if pattern.search(raw_location):
+            if pattern.search(location_raw):
                 return location_code
 
-    if not any([pattern.search(raw_location) for pattern in CZECH_PATTERNS]):
+    if not any([pattern.search(location_raw) for pattern in CZECH_PATTERNS]):
         return 'out_of_scope'
     return None  # is within scope, but could not be parsed
 
 
 @functools.lru_cache()
-def geocode(raw_location, **options):
+def geocode(location_raw, **options):
     api_key = options.get('api_key')
 
-    result = geocoder.google(unidecode(raw_location), key=api_key,
+    result = geocoder.google(unidecode(location_raw), key=api_key,
                              language='cs', region='cz')
     region = result.state_long or result.locality
     country = result.country_long
 
-    if ',' in raw_location and not region:
+    if ',' in location_raw and not region:
         result = geocoder.google(result.latlng, key=api_key, method='reverse',
                                  language='cs', region='cz')
         region = result.state_long or result.locality
@@ -77,9 +77,9 @@ def geocode(raw_location, **options):
     return ', '.join(filter(None, [region, country]))
 
 
-def resolve(raw_location, **options):
-    location = parse(raw_location)
+def resolve(location_raw, **options):
+    location = parse(location_raw)
     if location is None:
         geocode_fn = options.pop('geocode', geocode)
-        return parse(geocode_fn(raw_location, **options))
+        return parse(geocode_fn(location_raw, **options))
     return location

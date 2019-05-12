@@ -3,7 +3,7 @@ import pytest
 from pythoncz.pages.jobs import geo
 
 
-@pytest.mark.parametrize('raw_location,location', [
+@pytest.mark.parametrize('location_raw,location', [
     ('Slovenská republika', 'sk'),
     ('Slovak Republic', 'sk'),
     ('Slovensko', 'sk'),
@@ -20,11 +20,11 @@ from pythoncz.pages.jobs import geo
     ('Rakousko', 'at'),
     ('Vienna, Austria', 'at'),
 ])
-def test_parse_countries(raw_location, location):
-    assert geo.parse(raw_location) == location
+def test_parse_countries(location_raw, location):
+    assert geo.parse(location_raw) == location
 
 
-@pytest.mark.parametrize('raw_location,location', [
+@pytest.mark.parametrize('location_raw,location', [
     ('Uliční 1, Praha, Česko', 'cz_pha'),
     ('Uliční 1, Prague, Česko', 'cz_pha'),
     ('Uliční 1, Praha 3, Česko', 'cz_pha'),
@@ -43,11 +43,11 @@ def test_parse_countries(raw_location, location):
     ('Uliční 1, Zlín, Česko', 'cz_zlk'),
     ('Uliční 1, Jihlava, Česko', 'cz_vys'),
 ])
-def test_parse_regional_centers(raw_location, location):
-    assert geo.parse(raw_location) == location
+def test_parse_regional_centers(location_raw, location):
+    assert geo.parse(location_raw) == location
 
 
-@pytest.mark.parametrize('raw_location,location', [
+@pytest.mark.parametrize('location_raw,location', [
     ('Uliční 1, Hlavní město Praha', 'cz_pha'),
     ('Uliční 1, Město, Středočeský kraj', 'cz_stc'),
     ('Uliční 1, Město, Jihočeský kraj', 'cz_jhc'),
@@ -63,11 +63,11 @@ def test_parse_regional_centers(raw_location, location):
     ('Uliční 1, Město, Zlínský kraj', 'cz_zlk'),
     ('Uliční 1, Město, Kraj Vysočina', 'cz_vys'),
 ])
-def test_parse_regions(raw_location, location):
-    assert geo.parse(raw_location) == location
+def test_parse_regions(location_raw, location):
+    assert geo.parse(location_raw) == location
 
 
-@pytest.mark.parametrize('raw_location', [
+@pytest.mark.parametrize('location_raw', [
     'Česká republika',
     'Czech Republic',
     'Česko',
@@ -77,53 +77,53 @@ def test_parse_regions(raw_location, location):
     '100% Remote, You decide where you work',
     'Anywhere, Anywhere',
 ])
-def test_parse_remote(raw_location):
-    assert geo.parse(raw_location) == 'remote'
+def test_parse_remote(location_raw):
+    assert geo.parse(location_raw) == 'remote'
 
 
-@pytest.mark.parametrize('raw_location', [
+@pytest.mark.parametrize('location_raw', [
     'On-site and limited remote',
     'New York, NY 10016, USA',
     'London, United Kingdom',
 ])
-def test_parse_out_of_scope(raw_location):
-    assert geo.parse(raw_location) == 'out_of_scope'
+def test_parse_out_of_scope(location_raw):
+    assert geo.parse(location_raw) == 'out_of_scope'
 
 
-@pytest.mark.parametrize('raw_location', [
+@pytest.mark.parametrize('location_raw', [
     'Nový dvůr 232, Letohrad, Česká republika',
     'Česká Třebová',
     'Bruntál, Česko',
 ])
-def test_parse_no_match(raw_location):
-    assert geo.parse(raw_location) is None
+def test_parse_no_match(location_raw):
+    assert geo.parse(location_raw) is None
 
 
 def test_resolve_location_can_be_parsed():
-    def geocode(raw_location):
+    def geocode(location_raw):
         raise AssertionError('This scenario should not call geocode()')
 
-    raw_location = 'Uliční 1, Brno, Česká republika'
-    location = geo.resolve(raw_location, geocode=geocode)
+    location_raw = 'Uliční 1, Brno, Česká republika'
+    location = geo.resolve(location_raw, geocode=geocode)
 
     assert location == 'cz_jhm'
 
 
 def test_resolve_location_geocoded():
-    def geocode(raw_location):
+    def geocode(location_raw):
         return 'Pardubický kraj, Česko'
 
-    raw_location = 'Nový dvůr 232, Letohrad, Česká republika'
-    location = geo.resolve(raw_location, geocode=geocode)
+    location_raw = 'Nový dvůr 232, Letohrad, Česká republika'
+    location = geo.resolve(location_raw, geocode=geocode)
 
     assert location == 'cz_pak'
 
 
 def test_resolve_location_geocoded_but_out_of_scope():
-    def geocode(raw_location):
+    def geocode(location_raw):
         return 'Washington, USA'
 
-    raw_location = 'Embassy of Czechia, USA'
-    location = geo.resolve(raw_location, geocode=geocode)
+    location_raw = 'Embassy of Czechia, USA'
+    location = geo.resolve(location_raw, geocode=geocode)
 
     assert location == 'out_of_scope'

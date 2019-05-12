@@ -59,7 +59,7 @@ def paginate_url(url, page):
 
 #     return [
 #         {
-#             'raw_location': group['location'],
+#             'location_raw': group['location'],
 #             'companies': sorted([
 #                 {'name': company['name'],
 #                  'urls': list(company['urls'])}
@@ -187,7 +187,7 @@ def jobs_from_jobscz(response_bytes, base_url):
                 'url': url,
                 'company_name': company_name,
                 'company_url': None,
-                'raw_location': f'{company_name}, {location}, Česko',
+                'location_raw': f'{company_name}, {location}, Česko',
             }
 
 
@@ -199,7 +199,7 @@ def job_details_from_jobscz(response_bytes, base_url):
         yield {}
     else:
         location = normalize_text(location_element.text_content())
-        yield {'location': None, 'raw_location': f'{location}, Česko'}
+        yield {'location': None, 'location_raw': f'{location}, Česko'}
 
 
 def jobs_from_startupjobscz(response_bytes, base_url):
@@ -217,7 +217,7 @@ def jobs_from_startupjobscz(response_bytes, base_url):
             'url': url,
             'company_name': company_name,
             'company_url': company_url,
-            'raw_location': 'Česko',
+            'location_raw': 'Česko',
         }
 
 
@@ -248,11 +248,11 @@ def job_details_from_startupjobscz(response_bytes, base_url):
     location_element, _, job_type_element = list(job_details_element)
 
     if geo.parse(job_type_element.text_content()) == 'remote':
-        yield {'location': None, 'raw_location': 'remote'}
+        yield {'location': None, 'location_raw': 'remote'}
     else:
         location_text = normalize_text(location_element.text_content())
-        for raw_location in parse_startupjobscz_location(location_text):
-            yield {'location': None, 'raw_location': raw_location}
+        for location_raw in parse_startupjobscz_location(location_text):
+            yield {'location': None, 'location_raw': location_raw}
 
 
 def jobs_from_stackoverflowcom(response_bytes, base_url):
@@ -283,16 +283,16 @@ def jobs_from_stackoverflowcom(response_bytes, base_url):
             is_remote = False
 
         if is_remote:
-            raw_location = 'remote'
+            location_raw = 'remote'
         else:
             location_element = details_elements[-1]
-            raw_location = normalize_text(location_element.text_content())
+            location_raw = normalize_text(location_element.text_content())
 
         yield {
             'url': url,
             'company_name': company_name,
             'company_url': company_url,
-            'raw_location': raw_location,
+            'location_raw': location_raw,
         }
 
 
@@ -308,17 +308,17 @@ def jobs_from_pythonorg(response_bytes, base_url):
         url = link_element.get('href')
 
         if '/telecommute/' in base_url:
-            raw_location = 'remote'
+            location_raw = 'remote'
         else:
             location_css = '.listing-location a'
             location_element = heading_element.cssselect(location_css)[0]
-            raw_location = normalize_text(location_element.text_content())
+            location_raw = normalize_text(location_element.text_content())
 
         yield {
             'url': url,
             'company_name': company_name,
             'company_url': None,
-            'raw_location': raw_location,
+            'location_raw': location_raw,
         }
 
 
@@ -336,7 +336,7 @@ def jobs_from_remoteok(response_bytes, base_url):
             'url': url,
             'company_name': company_name,
             'company_url': company_url,
-            'raw_location': 'remote',
+            'location_raw': 'remote',
         }
 
 
