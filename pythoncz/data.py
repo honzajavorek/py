@@ -1,10 +1,14 @@
 import re
 import json
-import logging
 from pathlib import Path
 from datetime import datetime
 
 from arrow import Arrow
+
+from pythoncz import log
+
+
+logger = log.get(__name__)
 
 
 DATETIME_RE = re.compile(r'''
@@ -48,7 +52,7 @@ def load_data(data_path, default=None, debug=False):
                 "There is no data in '%s'. Run '%s' "
                 "and retry the request to see content"
             )
-            logging.warning(message, data_path, build_command)
+            logger.warning(message, data_path, build_command)
             return default
         else:
             raise

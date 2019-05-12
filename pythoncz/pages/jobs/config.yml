@@ -1,0 +1,61 @@
+feeds:
+  # It is possible to use a %p placeholder in feed_url to apply pagination
+
+  - name: Jobs.cz
+    id: jobscz
+    url: https://www.jobs.cz/prace/?q%5B%5D=python
+    # We're using a custom export created for this particular purpose
+    feed_url: https://exporter.lmc.cz/python-jobs.xml
+
+  - name: StartupJobs.cz
+    id: startupjobscz
+    url: https://www.startupjobs.cz/nabidky?keyword=351
+    # We're using a custom export created for this particular purpose
+    feed_url: https://feedback.startupjobs.cz/feed/python.php
+
+  - name: Stack Overflow Jobs
+    id: stackoverflowcom
+    # There is RSS, but it is not very usable for getting structured data
+    #
+    # tl=python         ... filters to Python jobs
+    # sort=p            ... sorts from the latest to the oldest
+    # l=Seč%2C+Czechia  ... filters to jobs close to the geo center of Czechia
+    # d=350             ... filters to jobs 350 units far away
+    # u=Km              ... distance unit
+    # pg=1              ... page of results
+    url: https://stackoverflow.com/jobs?tl=python&sort=p
+    feed_url: https://stackoverflow.com/jobs?tl=python&sort=p&l=Seč%2C+Czechia&d=350&u=Km&pg=%p
+
+  - name: Stack Overflow Jobs
+    id: stackoverflowcom
+    # See previous feed
+    #
+    # r=true            ... if true, returns also remote OK jobs
+    url: https://stackoverflow.com/jobs?tl=python&sort=p
+    feed_url: https://stackoverflow.com/jobs?tl=python&sort=p&r=true&pg=%p
+
+  - name: Python Job Board
+    id: pythonorg
+    url: https://www.python.org/jobs/
+    # There is RSS, but it is not very usable for getting structured data
+    feed_url: https://www.python.org/jobs/?page=%p
+
+  - name: Python Job Board
+    id: pythonorg
+    url: https://www.python.org/jobs/
+    # See previous feed; this one filters remote jobs
+    feed_url: https://www.python.org/jobs/location/telecommute/?page=%p
+
+  - name: remoteok.io
+    id: remoteok
+    url: https://remoteok.io/remote-python-jobs
+    feed_url: https://remoteok.io/remote-python-jobs.json
+
+
+# Following companies do not work with Python directly, they're agencies
+# posting on behalf of other companies
+agencies:
+  - "mBlue Czech, s.r.o."
+  - "Jobs Contact Consulting, s.r.o."
+  - "ITjobs, s.r.o."
+  - "ManpowerGroup s.r.o."

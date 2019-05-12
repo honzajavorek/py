@@ -3,14 +3,16 @@ import json
 import shlex
 import urllib
 import warnings
-import logging
 import subprocess
 from pathlib import Path
 
 import click
 import flask_frozen
 
-from pythoncz import app
+from pythoncz import app, log
+
+
+logger = log.get(__name__)
 
 
 PROJECT_PATH = Path(__file__).parent.parent.parent
@@ -66,7 +68,7 @@ def build_web(app, base_url, build_path):
 
     freezer = flask_frozen.Freezer(app)
     for page in freezer.freeze_yield():
-        logging.info(f'Web path {page.url} done')
+        logger.info(f'Web path {page.url} done')
 
 
 @cli.command()
