@@ -1,5 +1,6 @@
 feeds:
-  # It is possible to use a %p placeholder in feed_url to apply pagination
+  # It is possible to use placeholders in feed_url to apply pagination (%p)
+  # or offset (%o)
 
   - name: Jobs.cz
     id: jobscz
@@ -13,7 +14,7 @@ feeds:
     # We're using a custom export created for this particular purpose
     feed_url: https://feedback.startupjobs.cz/feed/python.php
 
-  - name: Stack Overflow Jobs
+  - name: Stack Overflow
     id: stackoverflowcom
     # There is RSS, but it is not very usable for getting structured data
     #
@@ -26,7 +27,7 @@ feeds:
     url: https://stackoverflow.com/jobs?tl=python&sort=p
     feed_url: https://stackoverflow.com/jobs?tl=python&sort=p&l=Seč%2C+Czechia&d=350&u=Km&pg=%p
 
-  - name: Stack Overflow Jobs
+  - name: Stack Overflow
     id: stackoverflowcom
     # See previous feed
     #
@@ -50,6 +51,21 @@ feeds:
     id: remoteok
     url: https://remoteok.io/remote-python-jobs
     feed_url: https://remoteok.io/remote-python-jobs.json
+
+  # - name: Indeed.com
+  #   id: indeedcom
+  #   url: https://cz.indeed.com/jobs?q=python&l=%C4%8Cesko&fromage=last
+  #   feed_url: https://cz.indeed.com/jobs?q=python&l=%C4%8Cesko&fromage=last&start=%o
+
+  # - name: LinkedIn
+  #   id: linkedincom
+  #   url: https://www.linkedin.com/jobs/search?keywords=python&location=Czech%20Republic&pageNum=%p
+  #   feed_url: https://www.linkedin.com/jobs/search?keywords=python&location=Czech%20Republic&pageNum=%p
+
+  # - name: Glassdoor
+  #   id: glassdoorcom
+  #   url: https://www.glassdoor.com/
+  #   feed_url: TODO https://www.glassdoor.com/developer/index.htm
 
 
 # Following companies do not work with Python directly, they're agencies

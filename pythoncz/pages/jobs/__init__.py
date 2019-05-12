@@ -106,7 +106,15 @@ def get_company_key(company_name):
 def stats_from_jobs(jobs):
     feeds = {}
     companies = set()
+
+    remote_companies = set()
     remote_jobs_count = 0
+
+    czech_companies = set()
+    czech_jobs_count = 0
+
+    non_czech_companies = set()
+    non_czech_jobs_count = 0
 
     for job in jobs:
         feed_id = job['feed']['id']
@@ -118,12 +126,18 @@ def stats_from_jobs(jobs):
 
         if job['is_remote']:
             remote_jobs_count += 1
+            remote_companies.add(job['company_name'])
 
     return {
         'feeds': list(feeds.values()),
         'companies_count': len(companies),
         'jobs_count': len(jobs),
-        'remote_jobs_count': remote_jobs_count
+        'remote_companies_count': len(remote_companies),
+        'remote_jobs_count': remote_jobs_count,
+        'czech_companies_count': len(czech_companies),
+        'czech_jobs_count': czech_jobs_count,
+        'non_czech_companies_count': len(non_czech_companies),
+        'non_czech_jobs_count': non_czech_jobs_count,
     }
 
 
