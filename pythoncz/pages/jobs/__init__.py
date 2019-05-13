@@ -1,12 +1,8 @@
 import re
-import json
 import itertools
 from operator import itemgetter
 
-from slugify import slugify
-from lxml import html, etree as xml
-
-from pythoncz.pages.jobs import geo
+from pythoncz.pages.jobs import geo, parsers
 
 
 RE_COMPANY_NAME = re.compile(r'''
@@ -14,7 +10,6 @@ RE_COMPANY_NAME = re.compile(r'''
     AG|GmbH|SE|Ltd\.?|ltd\.?|Inc\.?|inc\.?|s\.r\.o\.|a\.s\.
 )$
 ''', re.VERBOSE)
-WHITESPACE_RE = re.compile(r'\s+')
 
 
 def group_by_pagination(feeds):
@@ -142,200 +137,18 @@ def get_jobs(feeds_jobs):
     )
 
 
-def jobs_from_bytes(feed_id, *args):
-    yield from {
-        'jobscz': jobs_from_jobscz,
-        'startupjobscz': jobs_from_startupjobscz,
-        'stackoverflowcom': jobs_from_stackoverflowcom,
-        'pythonorg': jobs_from_pythonorg,
-        'remoteok': jobs_from_remoteok,
-    }[feed_id](*args)
+def get_jobs_parser(feed_id):
+    try:
+        return getattr(parsers, feed_id).jobs_from_bytes
+    except AttributeError:
+        raise ValueError(f'There is no jobs adapter for {feed_id}')
 
 
 def get_job_details_parser(feed_id):
     try:
-        return {
-            'jobscz': job_details_from_jobscz,
-            'startupjobscz': job_details_from_startupjobscz,
-        }[feed_id]
-    except KeyError:
-        raise ValueError(f'There is no job details parser for {feed_id}')
-
-
-def jobs_from_jobscz(response_bytes, base_url):
-    elements = xml.fromstring(response_bytes)
-    for job_element in elements.iterfind('.//position'):
-        url = normalize_text(job_element.find('url').text)
-
-        company_element = job_element.find('companyName')
-        company_name = normalize_text(company_element.text)
-
-        location_elements = job_element.iterfind('.//locality')
-        locations = frozenset([normalize_text(l.text)
-                               for l in location_elements])
-
-        for location in locations:
-            yield {
-                'url': url,
-                'company_name': company_name,
-                'company_url': None,
-                'location_raw': f'{company_name}, {location}, Česko',
-            }
-
-
-def job_details_from_jobscz(response_bytes, base_url):
-    elements = html.fromstring(response_bytes)
-    try:
-        location_element = elements.cssselect('a[href*="mapy.cz"]')[0]
-    except IndexError:
-        yield {}
-    else:
-        location = normalize_text(location_element.text_content())
-        yield {'location': None, 'location_raw': f'{location}, Česko'}
-
-
-def jobs_from_startupjobscz(response_bytes, base_url):
-    elements = xml.fromstring(response_bytes)
-    for job_element in elements.iterfind('.//offer'):
-        url = normalize_text(job_element.find('url').text)
-
-        company_element = job_element.find('startup')
-        company_name = normalize_text(company_element.text)
-
-        company_url_element = job_element.find('startupURL')
-        company_url = normalize_text(company_url_element.text)
-
-        yield {
-            'url': url,
-            'company_name': company_name,
-            'company_url': company_url,
-            'location_raw': 'Česko',
-        }
-
-
-# Czechia
-# Praha, Praha 3
-# Praha, Brno
-# Liberec, Praha, Praha 2
-# Česká republika, Praha 4
-# Prague 6
-def parse_startupjobscz_location(text):
-    locations = filter(None, map(normalize_text, text.split(',')))
-    locations = set([
-        ('Praha' if loc.lower().startswith(('praha', 'prague')) else loc)
-        for loc in locations
-    ])
-    locations = [
-        f'{loc}, Česko' for loc in locations
-        if loc.lower() not in ('czechia', 'česká republika')
-    ]
-    return locations or ['Česká republika']
-
-
-def job_details_from_startupjobscz(response_bytes, base_url):
-    elements = html.fromstring(response_bytes)
-    elements.make_links_absolute(base_url)
-
-    job_details_element = elements.cssselect('#offer-detail .details')[0]
-    location_element, _, job_type_element = list(job_details_element)
-
-    if geo.parse(job_type_element.text_content()) == 'remote':
-        yield {'location': None, 'location_raw': 'remote'}
-    else:
-        location_text = normalize_text(location_element.text_content())
-        for location_raw in parse_startupjobscz_location(location_text):
-            yield {'location': None, 'location_raw': location_raw}
-
-
-def jobs_from_stackoverflowcom(response_bytes, base_url):
-    elements = html.fromstring(response_bytes)
-    elements.make_links_absolute(base_url)
-
-    for job_element in elements.cssselect('.-job-summary'):
-        published_ago_element = job_element.cssselect('.-title span')[-1]
-        published_ago = normalize_text(published_ago_element.text_content())
-        if 'w ago' in published_ago and int(published_ago[0]) > 3:
-            continue
-
-        link_element = job_element.cssselect('.-title a')[0]
-        url = link_element.get('href')
-
-        company_element = job_element.cssselect('.-company')[0]
-        details_elements = list(company_element)
-
-        company_name_element = details_elements[0]
-        company_name = normalize_text(company_name_element.text)
-        company_url = (f'https://stackoverflow.com/jobs/companies/'
-                       + slugify(company_name))
-
-        try:
-            remote_element = job_element.cssselect('.-remote')[0]
-            is_remote = 'on-site' not in remote_element.text_content().lower()
-        except IndexError:
-            is_remote = False
-
-        if is_remote:
-            location_raw = 'remote'
-        else:
-            location_element = details_elements[-1]
-            location_raw = normalize_text(location_element.text_content())
-
-        yield {
-            'url': url,
-            'company_name': company_name,
-            'company_url': company_url,
-            'location_raw': location_raw,
-        }
-
-
-def jobs_from_pythonorg(response_bytes, base_url):
-    elements = html.fromstring(response_bytes)
-    elements.make_links_absolute(base_url)
-
-    for heading_element in elements.cssselect('.listing-company'):
-        title_element = heading_element.cssselect('.listing-company-name')[0]
-        company_name = normalize_text(list(title_element)[-1].tail)
-
-        link_element = heading_element.cssselect('.listing-company-name a')[0]
-        url = link_element.get('href')
-
-        if '/telecommute/' in base_url:
-            location_raw = 'remote'
-        else:
-            location_css = '.listing-location a'
-            location_element = heading_element.cssselect(location_css)[0]
-            location_raw = normalize_text(location_element.text_content())
-
-        yield {
-            'url': url,
-            'company_name': company_name,
-            'company_url': None,
-            'location_raw': location_raw,
-        }
-
-
-def jobs_from_remoteok(response_bytes, base_url):
-    for entry in json.loads(response_bytes.decode('utf8')):
-        if not entry.get('url') or not entry.get('company'):
-            continue
-
-        url = entry['url']
-        company_name = entry['company']
-        company_url = (f'https://remoteok.io/remote-companies/'
-                       + slugify(company_name))
-
-        yield {
-            'url': url,
-            'company_name': company_name,
-            'company_url': company_url,
-            'location_raw': 'remote',
-        }
-
-
-def normalize_text(text):
-    if text:
-        return WHITESPACE_RE.sub(' ', text.strip())
-    return text
+        return getattr(parsers, feed_id).job_details_from_bytes
+    except AttributeError:
+        raise ValueError(f'There is no job details adapter for {feed_id}')
 
 
 def is_relevant_job(job, agencies=None):

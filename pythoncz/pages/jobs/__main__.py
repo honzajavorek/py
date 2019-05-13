@@ -7,7 +7,7 @@ import yaml
 
 from pythoncz import log
 from pythoncz.data import save_data
-from pythoncz.pages.jobs import (geo, get_jobs, jobs_from_bytes,
+from pythoncz.pages.jobs import (geo, get_jobs, get_jobs_parser,
                                  # stats_from_jobs, companies_from_jobs,
                                  group_by_pagination, paginate_url,
                                  get_job_details_parser, is_relevant_job,
@@ -31,7 +31,8 @@ def download_feed(feed):
     except Exception as request_exc:
         exc = RuntimeError(f'Could not get jobs feed from {url}')
         raise exc from request_exc
-    return jobs_from_bytes(feed['id'], response_bytes, url)
+    jobs_from_bytes = get_jobs_parser(feed['id'])
+    yield from jobs_from_bytes(response_bytes, url)
 
 
 def download_feed_paginated(feed):
@@ -47,7 +48,8 @@ def download_feed_paginated(feed):
             exc = RuntimeError(f'Could not get jobs feed from {url}')
             raise exc from exc
 
-        jobs = list(jobs_from_bytes(feed['id'], response_bytes, url))
+        jobs_from_bytes = get_jobs_parser(feed['id'])
+        jobs = list(jobs_from_bytes(response_bytes, url))
         if not jobs:
             break
         yield from jobs
