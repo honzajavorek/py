@@ -23,7 +23,7 @@ feedparser = "~=5.2.1"
 lxml = "~=4.3.4"
 cssselect = "~=1.0.3"
 geocoder = "~=1.38.1"
-unidecode = "~=1.0.23"
+unidecode = "~=1.1.0"
 
 [dev-packages]
 # Pinning packages with ~= unless their version starts with 0.,
