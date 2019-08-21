@@ -29,7 +29,7 @@ unidecode = "~=1.1.1"
 # Pinning packages with ~= unless their version starts with 0.,
 # then pinning each version strictly with ==
 pylama = "~=7.7.1"
-pytest = "~=5.0.1"
+pytest = "~=5.1.1"
 pytest-cov = "~=2.7.1"
 codecov = "~=2.0.15"
 
