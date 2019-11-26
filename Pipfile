@@ -20,7 +20,7 @@ ics = "==0.4"
 arrow = "==0.4.2"  # can't use newer because of 'ics' https://github.com/C4ptainCrunch/ics.py/issues/153
 frozen-flask = "==0.15"
 feedparser = "~=5.2.1"
-lxml = "~=4.4.0"
+lxml = "~=4.4.2"
 cssselect = "~=1.0.3"
 geocoder = "~=1.38.1"
 unidecode = "~=1.1.1"
