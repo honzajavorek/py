@@ -5,18 +5,23 @@ feeds:
   - name: Jobs.cz
     id: jobscz
     url: https://www.jobs.cz/prace/?q%5B%5D=python
-    # We're using a custom export created for this particular purpose
+    # We're using a custom export created for this particular purpose,
+    # but it doesn't contain much and it is buggy, so considering scraping
+    # instead...
     feed_url: https://exporter.lmc.cz/python-jobs.xml
 
   - name: StartupJobs.cz
     id: startupjobscz
     url: https://www.startupjobs.cz/nabidky?keyword=351
-    # We're using a custom export created for this particular purpose
+    # We're using a custom export created for this particular purpose,
+    # but it doesn't contain half of the info, so considering scraping
+    # instead...
     feed_url: https://feedback.startupjobs.cz/feed/python.php
 
   - name: Stack Overflow
     id: stackoverflowcom
-    # There is RSS, but it is not very usable for getting structured data
+    # There is RSS, but it is not very usable for getting structured data,
+    # scraping the website instead.
     #
     # tl=python         ... filters to Python jobs
     # sort=p            ... sorts from the latest to the oldest
@@ -29,7 +34,7 @@ feeds:
 
   - name: Stack Overflow
     id: stackoverflowcom
-    # See previous feed
+    # See previous feed's comment.
     #
     # r=true            ... if true, returns also remote OK jobs
     url: https://stackoverflow.com/jobs?tl=python&sort=p
@@ -38,13 +43,14 @@ feeds:
   - name: Python Job Board
     id: pythonorg
     url: https://www.python.org/jobs/
-    # There is RSS, but it is not very usable for getting structured data
+    # There is RSS, but it is not very usable for getting structured data,
+    # scraping the website instead.
     feed_url: https://www.python.org/jobs/?page=%p
 
   - name: Python Job Board
     id: pythonorg
     url: https://www.python.org/jobs/
-    # See previous feed; this one filters remote jobs
+    # See previous feed's comment. This one filters remote jobs.
     feed_url: https://www.python.org/jobs/location/telecommute/?page=%p
 
   - name: remoteok.io
